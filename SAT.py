@@ -47,28 +47,6 @@ def check_data_files():
         print("Ошибка: файлы были удалены / владелец репозитория удалил нужные файлы.")
         return False
 
-def setup_proxy():
-    proxy_input = input("Введите прокси в формате IP:PORT: ")
-    proxies = {
-        'http': f'http://{proxy_input}',
-        'https': f'http://{proxy_input}'
-    }
-    with open('proxy.txt', 'w') as proxy_file:
-        proxy_file.write(proxy_input)
-    return proxies
-
-def load_saved_proxy():
-    try:
-        with open('proxy.txt', 'r') as proxy_file:
-            proxy_input = proxy_file.read().strip()
-        proxies = {
-            'http': f'http://{proxy_input}',
-            'https': f'http://{proxy_input}'
-        }
-        return proxies
-    except FileNotFoundError:
-        return None
-
 def send_email(subject, body):
     try:
         smtp_server = smtplib.SMTP('smtp.gmail.com', 587)
@@ -93,7 +71,6 @@ if not check_data_files():
 
 url = 'https://telegram.org/support'
 ua = UserAgent()
-proxies = load_saved_proxy()
 
 def send_complaint(text, contact, yukino):
     headers = {
@@ -105,7 +82,7 @@ def send_complaint(text, contact, yukino):
     }
 
     try:
-        response = requests.post(url, data=payload, headers=headers, proxies=proxies, timeout=5)
+        response = requests.post(url, data=payload, headers=headers, timeout=5)
         if response.status_code == 200:
             print(f"\33[92mОтправлено жалоба\n Кол-во (лимит 100000)", yukino, "УЖЕ ОТПРАВЛЕНО\33[0m")
         else:
@@ -145,12 +122,7 @@ def change_username():
         user_file.write(new_username)
     print("Юзернейм успешно изменен.")
 
-def change_proxy():
-    global proxies
-    proxies = setup_proxy()
-
 def main_menu():
-    global proxies
     while True:
         choice = input("Выберите вариант сноса \n 1 - по номеру телефона, \n2 - по юзер нейму, \n3 - изменить данные \n: ")
         if choice == '3':
@@ -162,20 +134,4 @@ def main_menu():
             else:
                 print("Неверный выбор.")
         elif choice == '5':
-            send_email("Жалоба на аккаунты Telegram", "Текст жалобы: ...")  # Замените "Текст жалобы: ..." на ваш текст жалобы
-        elif choice not in ['1', '2']:
-            print("Неверный выбор.")
-        else:
-            limit = 100000
-            with open('num.txt', 'r') as num_file:
-                contact = num_file.read().splitlines()
-
-            with open('text.txt', 'r') as text_file:
-                text = text_file.read().splitlines()
-
-            with open('users.txt', 'r') as user_file:
-                users = user_file.read().splitlines()
-
-            send_complaints(choice, limit, text, contact, users)
-
-main_menu()
+            send_email("Жалоба на аккаунты Telegram", "Текст жалобы: ...")  # Замените "Текст жалобы: ..."
