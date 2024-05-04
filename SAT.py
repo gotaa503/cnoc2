@@ -8,6 +8,9 @@ import socket
 import datetime
 from termcolor import colored
 import pyfiglet
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 ascii_banner = pyfiglet.figlet_format("SNOS ACCOUNTA \n for you!")
 colored_banner = colored(ascii_banner, color='red') 
@@ -20,9 +23,10 @@ print(colored(f"Софт от: https://t.me/BelugaFan0", 'yellow'))
 print(colored(f"Устройство: {device_name}", 'red'))
 print(colored(f"Время запуска софта: {current_time}", 'cyan'))
 print(colored(f"IP-адрес (если стоит ваш, проверьте ваш прокси): {ip_address}", 'yellow'))
-print(colored(f"Для установки прокси, нужен сам прокси с портом SOCKS5, потом зайдите в Настройки устройства и найдите прокси.", 'blue'))
+print(colored(f"Для отправки жалобы на почту, используйте: furfurfur918@gmail.com, пароль: Dapire2023", 'blue'))
+print(colored(f"Для отправки жалобы на support@telegram.org", 'blue'))
 print(colored(f"При сноса, можно отменить нажав CTRL + C", 'red'))
-print(colored(f"Версия софта: pre-alpha v.0.3", 'red'))
+print(colored(f"Версия софта: pre-alpha v.0.4", 'red'))
 print(colored(f"!!РЕКОМЕНДУЕТСЯ МЕНЯТЬ ПРОКСИ ПОСТОЯННО, ЧТОБЫ РЕАЛЬНО СНОСИТЬ АККАУНТ ЖЕРТВЫ!!", 'red'))
 
 def check_data_files():
@@ -64,6 +68,25 @@ def load_saved_proxy():
         return proxies
     except FileNotFoundError:
         return None
+
+def send_email(subject, body):
+    try:
+        smtp_server = smtplib.SMTP('smtp.gmail.com', 587)
+        smtp_server.ehlo()
+        smtp_server.starttls()
+        smtp_server.login('furfurfur918@gmail.com', 'Dapire2023')
+        
+        msg = MIMEMultipart()
+        msg['From'] = 'furfurfur918@gmail.com'
+        msg['To'] = 'support@telegram.org'
+        msg['Subject'] = subject
+        msg.attach(MIMEText(body, 'plain'))
+
+        smtp_server.send_message(msg)
+        smtp_server.quit()
+        print(colored("Жалоба успешно отправлена на support@telegram.org", 'green'))
+    except Exception as e:
+        print(colored(f"Ошибка при отправке жалобы на support@telegram.org: {e}", 'red'))
 
 if not check_data_files():
     exit()
@@ -129,7 +152,7 @@ def change_proxy():
 def main_menu():
     global proxies
     while True:
-        choice = input("Выберите вариант сноса \n 1 - по номеру телефона, 2 - по юзер нейму, 3 - изменить данные, 4 - сменить прокси\n: ")
+        choice = input("Выберите вариант сноса \n 1 - по номеру телефона, \n2 - по юзер нейму, \n3 - изменить данные \n: ")
         if choice == '3':
             data_choice = input("Выберите данные для изменения \n 1 - Изменить номер телефона, 2 - Изменить юзернейм \n: ")
             if data_choice == '1':
@@ -138,8 +161,8 @@ def main_menu():
                 change_username()
             else:
                 print("Неверный выбор.")
-        elif choice == '4':
-            change_proxy()
+        elif choice == '5':
+            send_email("Жалоба на аккаунты Telegram", "Текст жалобы: ...")  # Замените "Текст жалобы: ..." на ваш текст жалобы
         elif choice not in ['1', '2']:
             print("Неверный выбор.")
         else:
